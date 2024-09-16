@@ -2,31 +2,31 @@ CREATE DATABASE banco;
 USE banco;
 
 CREATE TABLE Ciudad(
-    codigo_postal BIGINT UNSIGNED NOT NULL,
+    cod_postal BIGINT UNSIGNED NOT NULL,
     nombre VARCHAR (45) NOT NULL,
 
     CONSTRAINT pk_ciudad
-    PRIMARY KEY (codigo_postal)
+    PRIMARY KEY (cod_postal)
 ) ENGINE=InnoDB;
 
 CREATE TABLE Sucursal(
-    nro_suc SMALLINT UNSIGNED NOT NULL,
+    nro_suc SMALLINT UNSIGNED AUTO_INCREMENT NOT NULL,
     nombre VARCHAR (45) NOT NULL,
     direccion VARCHAR (100) NOT NULL,
     telefono VARCHAR (15) NOT NULL,
     horario VARCHAR (45) NOT NULL,
-    codigo_postal BIGINT UNSIGNED NOT NULL,
+    cod_postal BIGINT UNSIGNED NOT NULL,
 
     CONSTRAINT pk_sucursal
     PRIMARY KEY (nro_suc), 
 
     CONSTRAINT fk_suc_ciudad
-    FOREIGN KEY (codigo_postal) REFERENCES Ciudad (codigo_postal)
+    FOREIGN KEY (cod_postal) REFERENCES Ciudad (cod_postal)
         
 ) ENGINE=InnoDB;
 
 CREATE TABLE Empleado(
-    legajo BIGINT UNSIGNED NOT NULL,
+    legajo BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
     apellido VARCHAR (45) NOT NULL,
     nombre VARCHAR (45) NOT NULL,
     tipo_doc VARCHAR (20) NOT NULL,
@@ -45,11 +45,11 @@ CREATE TABLE Empleado(
 ) ENGINE=InnoDB;
 
 CREATE TABLE Cliente (
-    nro_cliente BIGINT UNSIGNED NOT NULL,
+    nro_cliente BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
     apellido VARCHAR(45) NOT NULL,
     nombre VARCHAR(45) NOT NULL,
-    tipo_doc VARCHAR(45) NOT NULL,
-    nro_doc INT UNSIGNED NOT NULL,
+    tipo_doc VARCHAR(20) NOT NULL,
+    nro_doc BIGINT UNSIGNED NOT NULL,
     direccion VARCHAR(45) NOT NULL,
     telefono VARCHAR(45) NOT NULL,
     fecha_nac DATE NOT NULL,
@@ -61,7 +61,7 @@ CREATE TABLE Cliente (
 ) ENGINE = InnoDB;
 
 CREATE TABLE Plazo_Fijo(
-    nro_plazo SMALLINT UNSIGNED NOT NULL,
+    nro_plazo SMALLINT UNSIGNED AUTO_INCREMENT NOT NULL,
     capital DECIMAL(16,2) UNSIGNED NOT NULL,
     fecha_inicio DATE NOT NULL,
     fecha_fin DATE NOT NULL,
@@ -93,7 +93,7 @@ CREATE TABLE Tasa_Plazo_Fijo (
 /*relacion*/
 CREATE TABLE Plazo_Cliente (
     nro_plazo SMALLINT UNSIGNED NOT NULL,
-    nro_cliente SMALLINT UNSIGNED NOT NULL,
+    nro_cliente BIGINT UNSIGNED NOT NULL,
 
     CONSTRAINT pk_plazo_cliente
     PRIMARY KEY (nro_plazo, nro_cliente),
@@ -106,7 +106,7 @@ CREATE TABLE Plazo_Cliente (
  ) ENGINE = InnoDB;
 
 CREATE TABLE Prestamo (
-    nro_prestamo INT UNSIGNED NOT NULL,
+    nro_prestamo INT UNSIGNED AUTO_INCREMENT NOT NULL,
     fecha DATE NOT NULL,
     cant_meses SMALLINT UNSIGNED NOT NULL,
     monto DECIMAL(10,2) UNSIGNED NOT NULL,
@@ -114,7 +114,7 @@ CREATE TABLE Prestamo (
     interes DECIMAL(9,2) UNSIGNED NOT NULL,
     valor_cuota DECIMAL(9,2) UNSIGNED NOT NULL,
     legajo BIGINT UNSIGNED NOT NULL,
-    nro_cliente SMALLINT UNSIGNED NOT NULL,
+    nro_cliente BIGINT UNSIGNED NOT NULL,
     
     CONSTRAINT pk_prestamo
     PRIMARY KEY (nro_prestamo),
@@ -151,7 +151,7 @@ CREATE TABLE Tasa_Prestamo (
 ) ENGINE = InnoDB;
 
 CREATE TABLE Caja_Ahorro(
-    nro_ca INT UNSIGNED NOT NULL,
+    nro_ca SMALLINT UNSIGNED AUTO_INCREMENT NOT NULL,
     CBU BIGINT UNSIGNED NOT NULL,
     saldo DECIMAL(16,2) UNSIGNED NOT NULL,
 
@@ -173,12 +173,12 @@ CREATE TABLE Cliente_CA (
 ) ENGINE = InnoDB;
 
 CREATE TABLE Tarjeta (
-    nro_tarjeta BIGINT UNSIGNED NOT NULL,
+    nro_tarjeta BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
     pin VARCHAR(32) NOT NULL, /*hash MD5*/
     cvt VARCHAR(32) NOT NULL, /*hash MD5*/
     fecha_venc DATE NOT NULL,
-    nro_cliente SMALLINT UNSIGNED NOT NUll,
-    nro_ca INT UNSIGNED NOT NULL,
+    nro_cliente BIGINT UNSIGNED NOT NUll,
+    nro_ca SMALLINT UNSIGNED NOT NULL,
 
     CONSTRAINT pk_tarjeta
     PRIMARY KEY (nro_tarjeta),
@@ -188,7 +188,7 @@ CREATE TABLE Tarjeta (
 ) ENGINE = InnoDB;
 
 CREATE TABLE Caja(
-    cod_caja SMALLINT UNSIGNED NOT NULL,
+    cod_caja SMALLINT UNSIGNED AUTO_INCREMENT NOT NULL,
 
     CONSTRAINT pk_caja
     PRIMARY KEY (cod_caja)
@@ -210,7 +210,7 @@ CREATE TABLE Ventanilla(
 
 CREATE TABLE ATM(
     cod_caja SMALLINT UNSIGNED NOT NULL,
-    codigo_postal BIGINT UNSIGNED NOT NULL,
+    cod_postal BIGINT UNSIGNED NOT NULL,
     direccion VARCHAR(150) NOT NULL,
 
     CONSTRAINT pk_atm
@@ -220,11 +220,11 @@ CREATE TABLE ATM(
     FOREIGN KEY (cod_caja) REFERENCES Caja(cod_caja),
 
     CONSTRAINT fk_atm_ciudad
-    FOREIGN KEY (codigo_postal) REFERENCES Ciudad(codigo_postal)
+    FOREIGN KEY (cod_postal) REFERENCES Ciudad(cod_postal)
 ) ENGINE = InnoDB;
 
 CREATE TABLE Transaccion (
-    nro_trans INT UNSIGNED NOT NULL,
+    nro_trans INT UNSIGNED AUTO_INCREMENT NOT NULL,
     fecha DATE NOT NULL,
     hora TIME NOT NULL, 
     monto DECIMAL(16,2) UNSIGNED NOT NULL,
@@ -236,8 +236,8 @@ CREATE TABLE Transaccion (
 CREATE TABLE Debito (
     nro_trans INT UNSIGNED NOT NULL,
     descripcion TINYTEXT,
-    nro_cliente SMALLINT UNSIGNED NOT NULL, 
-    nro_ca INT UNSIGNED NOT NULL,
+    nro_cliente BIGINT UNSIGNED NOT NULL, 
+    nro_ca SMALLINT UNSIGNED NOT NULL,
 
     CONSTRAINT pk_debito
     PRIMARY KEY (nro_trans),
@@ -265,7 +265,7 @@ CREATE TABLE Transaccion_por_caja (
 
 CREATE TABLE Deposito (
     nro_trans INT UNSIGNED NOT NULL,
-    nro_ca INT UNSIGNED NOT NULL,
+    nro_ca SMALLINT UNSIGNED NOT NULL,
 
     CONSTRAINT pk_deposito
     PRIMARY KEY (nro_trans),
@@ -279,8 +279,8 @@ CREATE TABLE Deposito (
 
 CREATE TABLE Extraccion (
     nro_trans INT UNSIGNED NOT NULL,
-    nro_cliente SMALLINT UNSIGNED NOT NULL,
-    nro_ca INT UNSIGNED NOT NULL,
+    nro_cliente BIGINT UNSIGNED NOT NULL,
+    nro_ca SMALLINT UNSIGNED NOT NULL,
 
     CONSTRAINT pk_extraccion
     PRIMARY KEY (nro_trans),
@@ -294,9 +294,9 @@ CREATE TABLE Extraccion (
 
 CREATE TABLE Transferencia (
     nro_trans INT UNSIGNED NOT NULL,
-    nro_cliente SMALLINT UNSIGNED NOT NULL,
-    origen INT UNSIGNED NOT NULL,
-    destino INT UNSIGNED NOT NULL,
+    nro_cliente BIGINT UNSIGNED NOT NULL,
+    origen SMALLINT UNSIGNED NOT NULL,
+    destino SMALLINT UNSIGNED NOT NULL,
 
     CONSTRAINT pk_transferencia
     PRIMARY KEY (nro_trans),
@@ -311,39 +311,38 @@ CREATE TABLE Transferencia (
     FOREIGN KEY (destino) REFERENCES Caja_Ahorro(nro_ca)
 ) ENGINE = InnoDB;
 
---USUARIO ADMIN 
-CREATE USER 'admin'@'localhost' IDENTIFIED BY 'admin';
---Acceso total sobre todas las tablas
+#USUARIO ADMIN
+CREATE USER IF NOT EXISTS 'admin'@'localhost' IDENTIFIED BY 'admin';
+#Acceso total sobre todas las tablas
 GRANT ALL PRIVILEGES ON banco.* TO 'admin'@'localhost' WITH GRANT OPTION;
 
-DROP USER ' '@'localhost';--???
 
---USUARIO EMPLEADO
-CREATE USER 'empleado'@'%' IDENTIFIED BY 'empleado'; --Se conecta desde cualquier direccion IP 
---Solo realizar consultas/lectura (SELECT) sobre:
-GRANT SELECT ON banco.empleado TO 'empleado'@'%';
-GRANT SELECT ON banco.sucursal TO 'empleado'@'%';
-GRANT SELECT ON banco.tasa_plazo_fijo TO 'empleado'@'%';
-GRANT SELECT ON banco.tasa_prestamo TO 'empleado'@'%';
---Solo realizar consultas/lectura (SELECT) e ingresar datos (INSERT) sobre:
-GRANT SELECT, INSERT ON banco.prestamo TO 'empleado'@'%';
-GRANT SELECT, INSERT ON banco.plazo_fijo TO 'empleado'@'%';
-GRANT SELECT, INSERT ON banco.plazo_cliente TO 'empleado'@'%';
-GRANT SELECT, INSERT ON banco.caja_ahorro TO 'empleado'@'%';
-GRANT SELECT, INSERT ON banco.tarjeta TO 'empleado'@'%';
---Solo realizar consultas/lectura (SELECT), ingresar datos (INSERT) y modificar (UPDATE) sobre:
-GRANT SELECT, INSERT, UPDATE ON banco.cliente_ca TO 'empleado'@'%';
-GRANT SELECT, INSERT, UPDATE ON banco.cliente TO 'empleado'@'%';
-GRANT SELECT, INSERT, UPDATE ON banco.pago TO 'empleado'@'%';
+#USUARIO EMPLEADO
+CREATE USER IF NOT EXISTS 'empleado'@'%' IDENTIFIED BY 'empleado'; 
+#Solo realizar consultas/lectura (SELECT) sobre:
+GRANT SELECT ON banco.Empleado TO 'empleado'@'%';
+GRANT SELECT ON banco.Sucursal TO 'empleado'@'%';
+GRANT SELECT ON banco.Tasa_Plazo_Fijo TO 'empleado'@'%';
+GRANT SELECT ON banco.Tasa_Prestamo TO 'empleado'@'%';
+#Solo realizar consultas/lectura (SELECT) e ingresar datos (INSERT) sobre:
+GRANT SELECT, INSERT ON banco.Prestamo TO 'empleado'@'%';
+GRANT SELECT, INSERT ON banco.Plazo_Fijo TO 'empleado'@'%';
+GRANT SELECT, INSERT ON banco.Plazo_Cliente TO 'empleado'@'%';
+GRANT SELECT, INSERT ON banco.Caja_Ahorro TO 'empleado'@'%';
+GRANT SELECT, INSERT ON banco.Tarjeta TO 'empleado'@'%';
+#Solo realizar consultas/lectura (SELECT), ingresar datos (INSERT) y modificar (UPDATE) sobre:
+GRANT SELECT, INSERT, UPDATE ON banco.Cliente_CA TO 'empleado'@'%';
+GRANT SELECT, INSERT, UPDATE ON banco.Cliente TO 'empleado'@'%';
+GRANT SELECT, INSERT, UPDATE ON banco.Pago TO 'empleado'@'%';
 
---USUARIO ATM
+#USUARIO ATM
 /* "Con el objetivo de ocultar la estructura de la base de datos, 
 el usuario ATM tendra una vision restringida de la misma que solamente le 
 permita ver informacion relacionada a las transacciones realizadas
 sobre las cajas de ahorro. A tal efecto, se debera crear una vista con el
 nombre trans_cajas_ahorro" */
--- Creamos la vista trans_caja_ahorro
-CREATE VIEW trans_cajas_ahorro AS
+# Creamos la vista trans_caja_ahorro
+/*CREATE VIEW trans_cajas_ahorro AS
 SELECT 
     ca.nro_ca,
     ca.saldo,
@@ -381,13 +380,63 @@ SELECT
         ELSE NULL
     END AS destino
 FROM 
-    cajas_ahorro ca 
-    JOIN transacciones t ON ca.nro_ca = t.nro_ca
-    LEFT JOIN clientes c ON t.nro_cliente = c.nro_cliente;
+    Caja_Ahorro ca 
+    JOIN Transaccion t ON ca.nro_ca = t.nro_ca
+    LEFT JOIN Cliente c ON t.nro_cliente = c.nro_cliente
+    WHERE t.tipo IN ('débito', 'extracción', 'transferencia', 'depósito');
+    */
 
-CREATE USER 'atm'@'%' IDENTIFIED BY 'atm';
---Solo realizar consulta/lectura (SELECT) sobre:
+CREATE VIEW trans_cajas_ahorro AS
+SELECT 
+    ca.nro_ca,
+    ca.saldo,
+    t.nro_trans,
+    t.fecha,
+    t.hora,
+    CASE
+        WHEN d.nro_trans IS NOT NULL THEN 'débito'
+        WHEN e.nro_trans IS NOT NULL THEN 'extracción'
+        WHEN tr.nro_trans IS NOT NULL THEN 'transferencia'
+        WHEN dep.nro_trans IS NOT NULL THEN 'depósito'
+    END AS tipo,
+    t.monto,
+    CASE
+        WHEN tr.nro_trans IS NOT NULL THEN tr.destino
+        ELSE NULL
+    END AS destino,
+    CASE
+        WHEN d.nro_trans IS NULL THEN tpc.cod_caja
+        ELSE NULL
+    END AS cod_caja,
+    COALESCE(d.nro_cliente, e.nro_cliente, tr.nro_cliente) AS nro_cliente,
+    c.tipo_doc,
+    c.nro_doc,
+    c.nombre,
+    c.apellido
+FROM 
+    Transaccion t
+    LEFT JOIN Debito d ON t.nro_trans = d.nro_trans
+    LEFT JOIN Extraccion e ON t.nro_trans = e.nro_trans
+    LEFT JOIN Transferencia tr ON t.nro_trans = tr.nro_trans
+    LEFT JOIN Deposito dep ON t.nro_trans = dep.nro_trans
+    LEFT JOIN Transaccion_por_caja tpc ON t.nro_trans = tpc.nro_trans
+    LEFT JOIN Cliente c ON COALESCE(d.nro_cliente, e.nro_cliente, tr.nro_cliente) = c.nro_cliente
+    LEFT JOIN Caja_Ahorro ca ON 
+        CASE
+            WHEN d.nro_trans IS NOT NULL THEN d.nro_ca
+            WHEN e.nro_trans IS NOT NULL THEN e.nro_ca
+            WHEN tr.nro_trans IS NOT NULL THEN tr.origen
+            WHEN dep.nro_trans IS NOT NULL THEN dep.nro_ca
+        END = ca.nro_ca
+WHERE 
+    d.nro_trans IS NOT NULL OR 
+    e.nro_trans IS NOT NULL OR 
+    tr.nro_trans IS NOT NULL OR 
+    dep.nro_trans IS NOT NULL;
+
+CREATE USER IF NOT EXISTS 'atm'@'%' IDENTIFIED BY 'atm';
+#Solo realizar consulta/lectura (SELECT) sobre:
 GRANT SELECT ON trans_cajas_ahorro TO 'atm'@'%';
---Solo realizar consulta/lectura (SELECT) y modificar (UPDATE) sobre:
-GRANT SELECT, UPDATE ON tarjeta TO 'atm'@'%';
+#Solo realizar consulta/lectura (SELECT) y modificar (UPDATE) sobre:
+GRANT SELECT, UPDATE ON Tarjeta TO 'atm'@'%';
 
