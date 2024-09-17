@@ -342,50 +342,6 @@ permita ver informacion relacionada a las transacciones realizadas
 sobre las cajas de ahorro. A tal efecto, se debera crear una vista con el
 nombre trans_cajas_ahorro" */
 # Creamos la vista trans_caja_ahorro
-/*CREATE VIEW trans_cajas_ahorro AS
-SELECT 
-    ca.nro_ca,
-    ca.saldo,
-    t.nro_trans,
-    t.fecha,
-    t.hora,
-    t.tipo,
-    t.monto,
-    CASE
-        WHEN t.tipo != 'debito' THEN t.cod_caja
-        ELSE NULL
-    END AS cod_caja,
-    CASE 
-        WHEN t.tipo IN ('debito', 'extraccion', 'transferencia') THEN c.nro_cliente
-        ELSE NULL
-    END AS nro_cliente,
-    CASE 
-        WHEN t.tipo IN ('debito', 'extraccion', 'transferencia') THEN c.tipo_doc
-        ELSE NULL
-    END AS tipo_doc,
-    CASE 
-        WHEN t.tipo IN ('debito', 'extraccion', 'transferencia') THEN c.nro_doc
-        ELSE NULL
-    END AS nro_doc,
-    CASE 
-        WHEN t.tipo IN ('debito', 'extraccion', 'transferencia') THEN c.nombre
-        ELSE NULL
-    END AS nombre,
-    CASE 
-        WHEN t.tipo IN ('debito', 'extraccion', 'transferencia') THEN c.apellido
-        ELSE NULL
-    END AS apellido,
-    CASE 
-        WHEN t.tipo IN ('debito', 'extraccion', 'transferencia') THEN c.destino
-        ELSE NULL
-    END AS destino
-FROM 
-    Caja_Ahorro ca 
-    JOIN Transaccion t ON ca.nro_ca = t.nro_ca
-    LEFT JOIN Cliente c ON t.nro_cliente = c.nro_cliente
-    WHERE t.tipo IN ('débito', 'extracción', 'transferencia', 'depósito');
-    */
-
 CREATE VIEW trans_cajas_ahorro AS
 SELECT 
     ca.nro_ca,
@@ -394,16 +350,12 @@ SELECT
     t.fecha,
     t.hora,
     CASE
-        WHEN d.nro_trans IS NOT NULL THEN 'débito'
-        WHEN e.nro_trans IS NOT NULL THEN 'extracción'
+        WHEN d.nro_trans IS NOT NULL THEN 'debito'
+        WHEN e.nro_trans IS NOT NULL THEN 'extraccion'
         WHEN tr.nro_trans IS NOT NULL THEN 'transferencia'
-        WHEN dep.nro_trans IS NOT NULL THEN 'depósito'
+        WHEN dep.nro_trans IS NOT NULL THEN 'deposito'
     END AS tipo,
     t.monto,
-    CASE
-        WHEN tr.nro_trans IS NOT NULL THEN tr.destino
-        ELSE NULL
-    END AS destino,
     CASE
         WHEN d.nro_trans IS NULL THEN tpc.cod_caja
         ELSE NULL
@@ -412,7 +364,11 @@ SELECT
     c.tipo_doc,
     c.nro_doc,
     c.nombre,
-    c.apellido
+    c.apellido,
+    CASE
+        WHEN tr.nro_trans IS NOT NULL THEN tr.destino
+        ELSE NULL
+    END AS destino
 FROM 
     Transaccion t
     LEFT JOIN Debito d ON t.nro_trans = d.nro_trans
