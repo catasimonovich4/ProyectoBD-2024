@@ -342,7 +342,7 @@ permita ver informacion relacionada a las transacciones realizadas
 sobre las cajas de ahorro. A tal efecto, se debera crear una vista con el
 nombre trans_cajas_ahorro" */
 # Creamos la vista trans_caja_ahorro
-CREATE VIEW trans_cajas_ahorro AS
+/*CREATE VIEW trans_cajas_ahorro AS
 SELECT 
     ca.nro_ca,
     ca.saldo,
@@ -389,6 +389,117 @@ WHERE
     e.nro_trans IS NOT NULL OR 
     tr.nro_trans IS NOT NULL OR 
     dep.nro_trans IS NOT NULL;
+*/
+
+CREATE VIEW vista_debito AS
+SELECT 
+    t.nro_trans,
+    t.fecha,
+    t.hora,
+    t.monto,
+    'debito' AS tipo,
+    d.nro_cliente,
+    d.nro_ca,
+    c.tipo_doc,
+    c.nro_doc,
+    c.nombre,
+    c.apellido,
+    ca.saldo
+FROM 
+    Transaccion t
+    JOIN Debito d ON t.nro_trans = d.nro_trans
+    JOIN Cliente c ON d.nro_cliente = c.nro_cliente
+    JOIN Caja_Ahorro ca ON d.nro_ca = ca.nro_ca;
+
+CREATE VIEW vista_deposito AS
+SELECT 
+    t.nro_trans,
+    t.fecha,
+    t.hora,
+    t.monto,
+    'deposito' AS tipo,
+    dep.nro_ca,
+    tpc.cod_caja,
+    ca.saldo
+FROM 
+    Transaccion t
+    JOIN Deposito dep ON t.nro_trans = dep.nro_trans
+    JOIN Transaccion_por_caja tpc ON t.nro_trans = tpc.nro_trans
+    JOIN Caja_Ahorro ca ON dep.nro_ca = ca.nro_ca;
+
+CREATE VIEW vista_extraccion AS
+SELECT 
+    t.nro_trans,
+    t.fecha,
+    t.hora,
+    t.monto,
+    'extraccion' AS tipo,
+    e.nro_cliente,
+    e.nro_ca,
+    tpc.cod_caja,
+    c.tipo_doc,
+    c.nro_doc,
+    c.nombre,
+    c.apellido,
+    ca.saldo
+FROM 
+    Transaccion t
+    JOIN Extraccion e ON t.nro_trans = e.nro_trans
+    JOIN Transaccion_por_caja tpc ON t.nro_trans = tpc.nro_trans
+    JOIN Cliente c ON e.nro_cliente = c.nro_cliente
+    JOIN Caja_Ahorro ca ON e.nro_ca = ca.nro_ca;
+
+CREATE VIEW vista_transferencia AS
+SELECT 
+    t.nro_trans,
+    t.fecha,
+    t.hora,
+    t.monto,
+    'transferencia' AS tipo,
+    tr.nro_cliente,
+    tr.origen AS nro_ca,
+    tpc.cod_caja,
+    tr.destino,
+    c.tipo_doc,
+    c.nro_doc,
+    c.nombre,
+    c.apellido,
+    ca.saldo
+FROM 
+    Transaccion t
+    JOIN Transferencia tr ON t.nro_trans = tr.nro_trans
+    JOIN Transaccion_por_caja tpc ON t.nro_trans = tpc.nro_trans
+    JOIN Cliente c ON tr.nro_cliente = c.nro_cliente
+    JOIN Caja_Ahorro ca ON tr.origen = ca.nro_ca;
+
+/*Vista final trans_cajas_ahorro*/
+CREATE VIEW trans_cajas_ahorro AS
+SELECT 
+    nro_trans, fecha, hora, monto, tipo, nro_cliente, nro_ca, 
+    NULL AS cod_caja, NULL AS destino, 
+    tipo_doc, nro_doc, nombre, apellido, saldo
+FROM vista_debito
+
+UNION 
+
+SELECT 
+    nro_trans, fecha, hora, monto, tipo, NULL AS nro_cliente, nro_ca, 
+    cod_caja, NULL AS destino, 
+    NULL AS tipo_doc, NULL AS nro_doc, NULL AS nombre, NULL AS apellido, saldo
+FROM vista_deposito
+
+UNION 
+
+SELECT 
+    nro_trans, fecha, hora, monto, tipo, nro_cliente, nro_ca, 
+    cod_caja, NULL AS destino, 
+    tipo_doc, nro_doc, nombre, apellido, saldo
+FROM vista_extraccion
+
+UNION 
+
+SELECT *
+FROM vista_transferencia;
 
 CREATE USER IF NOT EXISTS 'atm'@'%' IDENTIFIED BY 'atm';
 #Solo realizar consulta/lectura (SELECT) sobre:
