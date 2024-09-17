@@ -22,7 +22,7 @@ INSERT INTO Empleado (legajo, apellido, nombre, tipo_doc, nro_doc, direccion, te
 INSERT INTO Cliente (nro_cliente, apellido, nombre, tipo_doc, nro_doc, direccion, telefono, fecha_nac) VALUES
 (1, 'Perez', 'Jorge', 'DNI', 30888777, 'Av. Mitre 123', '011-2222-8765', '1980-05-23'),
 (2, 'Ramirez', 'Lucia', 'DNI', 32999666, 'Calle Francia 234', '0341-3333-1234', '1992-09-12'),
-(3, 'Alvarez', 'Pedro', 'DNI', 31888555, 'Calle San Martín 456', '011-5555-4321', '1975-12-30'),
+(3, 'Alvarez', 'Pedro', 'DNI', 31888555, 'Calle San Martin 456', '011-5555-4321', '1975-12-30'),
 (4, 'Garcia', 'Clara', 'DNI', 27777666, 'Calle Pueyrredon 678', '0351-4444-9876', '1990-07-15'),
 (5, 'Sosa', 'Esteban', 'DNI', 30333444, 'Calle Buenos Aires 890', '0223-6666-5432', '1985-02-10');
 
@@ -103,10 +103,10 @@ INSERT INTO Ventanilla (cod_caja, nro_suc) VALUES
 
 INSERT INTO ATM (cod_caja, cod_postal, direccion) VALUES
 (1, 1001, 'Av. 9 de Julio 100'),
-(2, 2000, 'Calle Córdoba 200'),
+(2, 2000, 'Calle Cordoba 200'),
 (3, 5000, 'Av. Belgrano 300'),
 (4, 7600, 'Calle Olmos 400'),
-(5, 8300, 'Av. Colón 500');
+(5, 8300, 'Av. Colon 500');
 
 INSERT INTO Transaccion (nro_trans, fecha, hora, monto) VALUES
 (1, '2024-09-17', '14:02:54' , 55000.00),

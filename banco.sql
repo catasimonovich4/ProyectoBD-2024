@@ -335,113 +335,66 @@ GRANT SELECT, INSERT, UPDATE ON banco.Cliente_CA TO 'empleado'@'%';
 GRANT SELECT, INSERT, UPDATE ON banco.Cliente TO 'empleado'@'%';
 GRANT SELECT, INSERT, UPDATE ON banco.Pago TO 'empleado'@'%';
 
+DROP USER IF EXISTS '@localhost';
+
 #USUARIO ATM
 /* "Con el objetivo de ocultar la estructura de la base de datos, 
 el usuario ATM tendra una vision restringida de la misma que solamente le 
 permita ver informacion relacionada a las transacciones realizadas
 sobre las cajas de ahorro. A tal efecto, se debera crear una vista con el
 nombre trans_cajas_ahorro" */
-# Creamos la vista trans_caja_ahorro
-/*CREATE VIEW trans_cajas_ahorro AS
+
+CREATE VIEW debito_trans AS
 SELECT 
-    ca.nro_ca,
+    d.nro_ca,
     ca.saldo,
     t.nro_trans,
     t.fecha,
     t.hora,
-    CASE
-        WHEN d.nro_trans IS NOT NULL THEN 'debito'
-        WHEN e.nro_trans IS NOT NULL THEN 'extraccion'
-        WHEN tr.nro_trans IS NOT NULL THEN 'transferencia'
-        WHEN dep.nro_trans IS NOT NULL THEN 'deposito'
-    END AS tipo,
-    t.monto,
-    CASE
-        WHEN d.nro_trans IS NULL THEN tpc.cod_caja
-        ELSE NULL
-    END AS cod_caja,
-    COALESCE(d.nro_cliente, e.nro_cliente, tr.nro_cliente) AS nro_cliente,
-    c.tipo_doc,
-    c.nro_doc,
-    c.nombre,
-    c.apellido,
-    CASE
-        WHEN tr.nro_trans IS NOT NULL THEN tr.destino
-        ELSE NULL
-    END AS destino
-FROM 
-    Transaccion t
-    LEFT JOIN Debito d ON t.nro_trans = d.nro_trans
-    LEFT JOIN Extraccion e ON t.nro_trans = e.nro_trans
-    LEFT JOIN Transferencia tr ON t.nro_trans = tr.nro_trans
-    LEFT JOIN Deposito dep ON t.nro_trans = dep.nro_trans
-    LEFT JOIN Transaccion_por_caja tpc ON t.nro_trans = tpc.nro_trans
-    LEFT JOIN Cliente c ON COALESCE(d.nro_cliente, e.nro_cliente, tr.nro_cliente) = c.nro_cliente
-    LEFT JOIN Caja_Ahorro ca ON 
-        CASE
-            WHEN d.nro_trans IS NOT NULL THEN d.nro_ca
-            WHEN e.nro_trans IS NOT NULL THEN e.nro_ca
-            WHEN tr.nro_trans IS NOT NULL THEN tr.origen
-            WHEN dep.nro_trans IS NOT NULL THEN dep.nro_ca
-        END = ca.nro_ca
-WHERE 
-    d.nro_trans IS NOT NULL OR 
-    e.nro_trans IS NOT NULL OR 
-    tr.nro_trans IS NOT NULL OR 
-    dep.nro_trans IS NOT NULL;
-*/
-
-CREATE VIEW vista_debito AS
-SELECT 
-    t.nro_trans,
-    t.fecha,
-    t.hora,
-    t.monto,
     'debito' AS tipo,
+    t.monto,
     d.nro_cliente,
-    d.nro_ca,
     c.tipo_doc,
     c.nro_doc,
     c.nombre,
-    c.apellido,
-    ca.saldo
+    c.apellido
 FROM 
     Transaccion t
     JOIN Debito d ON t.nro_trans = d.nro_trans
     JOIN Cliente c ON d.nro_cliente = c.nro_cliente
     JOIN Caja_Ahorro ca ON d.nro_ca = ca.nro_ca;
 
-CREATE VIEW vista_deposito AS
+CREATE VIEW deposito_trans AS
 SELECT 
+    dep.nro_ca,
+    ca.saldo,
     t.nro_trans,
     t.fecha,
     t.hora,
-    t.monto,
     'deposito' AS tipo,
-    dep.nro_ca,
-    tpc.cod_caja,
-    ca.saldo
+    t.monto,
+    tpc.cod_caja
 FROM 
     Transaccion t
     JOIN Deposito dep ON t.nro_trans = dep.nro_trans
     JOIN Transaccion_por_caja tpc ON t.nro_trans = tpc.nro_trans
     JOIN Caja_Ahorro ca ON dep.nro_ca = ca.nro_ca;
 
-CREATE VIEW vista_extraccion AS
+CREATE VIEW extraccion_trans AS
 SELECT 
+    e.nro_ca,
+    ca.saldo,
     t.nro_trans,
     t.fecha,
     t.hora,
-    t.monto,
     'extraccion' AS tipo,
-    e.nro_cliente,
-    e.nro_ca,
+    t.monto,
     tpc.cod_caja,
+    e.nro_cliente,
     c.tipo_doc,
     c.nro_doc,
     c.nombre,
-    c.apellido,
-    ca.saldo
+    c.apellido
 FROM 
     Transaccion t
     JOIN Extraccion e ON t.nro_trans = e.nro_trans
@@ -449,22 +402,22 @@ FROM
     JOIN Cliente c ON e.nro_cliente = c.nro_cliente
     JOIN Caja_Ahorro ca ON e.nro_ca = ca.nro_ca;
 
-CREATE VIEW vista_transferencia AS
+CREATE VIEW transferencia_trans AS
 SELECT 
+    tr.origen AS nro_ca,
+    ca.saldo,
     t.nro_trans,
     t.fecha,
     t.hora,
-    t.monto,
     'transferencia' AS tipo,
-    tr.nro_cliente,
-    tr.origen AS nro_ca,
+    t.monto,
     tpc.cod_caja,
-    tr.destino,
+    tr.nro_cliente,
     c.tipo_doc,
     c.nro_doc,
     c.nombre,
     c.apellido,
-    ca.saldo
+    tr.destino
 FROM 
     Transaccion t
     JOIN Transferencia tr ON t.nro_trans = tr.nro_trans
@@ -472,34 +425,32 @@ FROM
     JOIN Cliente c ON tr.nro_cliente = c.nro_cliente
     JOIN Caja_Ahorro ca ON tr.origen = ca.nro_ca;
 
-/*Vista final trans_cajas_ahorro*/
 CREATE VIEW trans_cajas_ahorro AS
 SELECT 
-    nro_trans, fecha, hora, monto, tipo, nro_cliente, nro_ca, 
-    NULL AS cod_caja, NULL AS destino, 
-    tipo_doc, nro_doc, nombre, apellido, saldo
-FROM vista_debito
+    nro_ca, saldo, nro_trans, fecha, hora, tipo, monto, 
+    NULL AS cod_caja, nro_cliente, tipo_doc, nro_doc, nombre, 
+    apellido, NULL AS destino
+FROM debito_trans
 
 UNION 
 
 SELECT 
-    nro_trans, fecha, hora, monto, tipo, NULL AS nro_cliente, nro_ca, 
-    cod_caja, NULL AS destino, 
-    NULL AS tipo_doc, NULL AS nro_doc, NULL AS nombre, NULL AS apellido, saldo
-FROM vista_deposito
+    nro_ca, saldo, nro_trans, fecha, hora, tipo, monto, cod_caja, 
+    NULL AS nro_cliente, NULL AS tipo_doc, NULL AS nro_doc, NULL AS nombre, 
+    NULL AS apellido, NULL AS destino
+FROM deposito_trans
 
 UNION 
 
 SELECT 
-    nro_trans, fecha, hora, monto, tipo, nro_cliente, nro_ca, 
-    cod_caja, NULL AS destino, 
-    tipo_doc, nro_doc, nombre, apellido, saldo
-FROM vista_extraccion
+    nro_ca, saldo, nro_trans, fecha, hora, tipo, monto, cod_caja,  
+    nro_cliente, tipo_doc, nro_doc, nombre, apellido, NULL AS destino
+FROM extraccion_trans
 
 UNION 
 
 SELECT *
-FROM vista_transferencia;
+FROM transferencia_trans;
 
 CREATE USER IF NOT EXISTS 'atm'@'%' IDENTIFIED BY 'atm';
 #Solo realizar consulta/lectura (SELECT) sobre:
