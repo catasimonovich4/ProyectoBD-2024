@@ -452,6 +452,33 @@ UNION
 SELECT *
 FROM transferencia_trans;
 
+#Trigger para la tabla Prestamo que cargará automáticamente los pagos asociados
+DELIMITER //
+CREATE TRIGGER after_prestamo_insert 
+AFTER INSERT ON Prestamo
+FOR EACH ROW
+BEGIN
+    DECLARE i INT DEFAULT 1;
+    DECLARE fecha_venc DATE;
+    
+    #Inicializamos la primera fecha de vencimiento (un mes después de la fecha del préstamo)
+    SET fecha_venc = DATE_ADD(NEW.fecha, INTERVAL 1 MONTH);
+    
+    #Bucle para crear los pagos según la cantidad de meses del préstamo
+    WHILE i <= NEW.cant_meses DO
+        #Insertamos el pago
+        INSERT INTO Pago (nro_prestamo, nro_pago, fecha_venc, fecha_pago)
+        VALUES (NEW.nro_prestamo, i, fecha_venc, NULL);
+        
+        #Calculamos la fecha de vencimiento del siguiente pago
+        SET fecha_venc = DATE_ADD(fecha_venc, INTERVAL 1 MONTH);
+        
+        #Incrementamos el contador
+        SET i = i + 1;
+    END WHILE;
+END //
+DELIMITER ;
+
 CREATE USER IF NOT EXISTS 'atm'@'%' IDENTIFIED BY 'atm';
 #Solo realizar consulta/lectura (SELECT) sobre:
 GRANT SELECT ON trans_cajas_ahorro TO 'atm'@'%';
